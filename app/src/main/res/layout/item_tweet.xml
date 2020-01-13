@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.shunsukeshoji.litweet.presentation.custom_view.TweetCellView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="14dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@color/colorPrimary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/contentField"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="8dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/profile_image"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:id="@+id/topContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/userName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    android:text="UserName"
+                    android:textColor="@color/dark_87"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/userId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="8dp"
+                    android:gravity="bottom"
+                    android:text="/@toru625"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tweetTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="4dp"
+                    android:gravity="bottom"
+                    android:text="13:25"
+                    android:textColor="@color/dark_54"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/replyId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tweetText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="今日の夜肝試しか"
+                android:textColor="@color/dark_87"
+                android:textSize="13sp" />
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
+
+            <VideoView
+                android:id="@+id/videoView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="4dp"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:visibility="gone" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/iconComment"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="9dp"
+            android:src="@drawable/ic_chat_bubble_outline_black_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/profile_image"
+            app:layout_constraintTop_toBottomOf="@id/contentField" />
+
+        <ImageView
+            android:id="@+id/iconRetweet"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_repeat_black_24dp"
+            app:layout_constraintBottom_toBottomOf="@id/iconComment"
+            app:layout_constraintEnd_toStartOf="@id/iconLike"
+            app:layout_constraintStart_toEndOf="@id/iconComment"
+            app:layout_constraintTop_toTopOf="@id/iconComment" />
+
+        <ImageView
+            android:id="@+id/iconLike"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_favorite_border_black_24dp"
+            app:layout_constraintBottom_toBottomOf="@id/iconComment"
+            app:layout_constraintEnd_toStartOf="@id/iconShare"
+            app:layout_constraintStart_toEndOf="@id/iconRetweet"
+            app:layout_constraintTop_toTopOf="@id/iconComment" />
+
+        <ImageView
+            android:id="@+id/iconShare"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginRight="40dp"
+            android:src="@drawable/ic_share_black_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/contentField" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/dark_12"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</com.shunsukeshoji.litweet.presentation.custom_view.TweetCellView>
