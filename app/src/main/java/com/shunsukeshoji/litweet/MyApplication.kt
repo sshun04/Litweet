@@ -52,7 +52,7 @@ class MyApplication : Application() {
             androidContext(applicationContext)
             modules(
                 listOf(
-                    apiModule, viewModelModule, useCaseModule
+                     viewModelModule, useCaseModule,apiModule
                 )
             )
         }
