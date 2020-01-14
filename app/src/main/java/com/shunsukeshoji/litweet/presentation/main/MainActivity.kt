@@ -1,10 +1,7 @@
-package com.shunsukeshoji.litweet.presentation.view
+package com.shunsukeshoji.litweet.presentation.main
 
-import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView

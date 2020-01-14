@@ -1,10 +1,9 @@
 package com.shunsukeshoji.litweet.domain.use_case
 
 import android.util.Log
-import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
+import com.shunsukeshoji.litweet.data.Repository.RetrofitClientRepository
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
-import io.reactivex.Observable
 import io.reactivex.Single
 
 class MainActivityUseCase(private val retrofitClientRepository: RetrofitClientRepository) {

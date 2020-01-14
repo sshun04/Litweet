@@ -1,4 +1,4 @@
-package com.shunsukeshoji.litweet.presentation
+package com.shunsukeshoji.litweet.presentation.fragment
 
 import android.app.AlertDialog
 import android.app.Dialog

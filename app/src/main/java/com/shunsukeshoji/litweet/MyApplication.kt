@@ -3,9 +3,9 @@ package com.shunsukeshoji.litweet
 import android.app.Application
 import com.google.gson.GsonBuilder
 import com.shunsukeshoji.litweet.data.api.DropBoxService
-import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
+import com.shunsukeshoji.litweet.data.Repository.RetrofitClientRepository
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
-import com.shunsukeshoji.litweet.presentation.view.MainActivityViewModel
+import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
 import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger

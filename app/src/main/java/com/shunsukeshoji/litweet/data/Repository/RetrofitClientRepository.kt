@@ -1,9 +1,8 @@
-package com.shunsukeshoji.litweet.data.impl
+package com.shunsukeshoji.litweet.data.Repository
 
 import com.shunsukeshoji.litweet.data.api.DropBoxService
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
-import io.reactivex.Observable
 import io.reactivex.Single
 
 class RetrofitClientRepository(private val dropBoxService: DropBoxService) {
