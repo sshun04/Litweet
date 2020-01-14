@@ -34,31 +34,16 @@ class MainActivity : AppCompatActivity() {
         })
 
         mainActivityViewModel.tweets.observe(this, Observer {
-            if (it.isNotEmpty()) {
+            if (it != null) {
                 recyclerViewAdapter.setTweet(it)
             }
         })
 
         searchFab.setOnClickListener {
-            setUpDialog()
+            mainActivityViewModel.setUpDialog(supportFragmentManager)
         }
     }
 
-    private fun setUpDialog() {
-        val editText = EditText(this)
-        AlertDialog.Builder(this)
-            .setTitle("友達を追加しよう")
-            .setView(editText)
-            .setPositiveButton("追加", DialogInterface.OnClickListener { _, _ ->
-                mainActivityViewModel.onSubmitId(editText.text.toString()){
-                    editText.error = "このIDは存在しません"
-                }
-            })
-            .setNegativeButton("キャンセル", DialogInterface.OnClickListener { dialog, _ ->
-                dialog.dismiss()
-            })
-            .show()
-    }
 
     override fun onStart() {
         super.onStart()
