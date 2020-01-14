@@ -1,4 +1,4 @@
-package com.shunsukeshoji.litweet.presentation.view
+package com.shunsukeshoji.litweet.presentation.main
 
 import android.util.Log
 import androidx.fragment.app.FragmentManager
@@ -8,15 +8,12 @@ import androidx.lifecycle.ViewModel
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
-import com.shunsukeshoji.litweet.presentation.PostDialogFragment
-import io.reactivex.Observer
+import com.shunsukeshoji.litweet.presentation.fragment.PostDialogFragment
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 
 class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
@@ -36,7 +33,9 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
 
     fun setUpDialog(fragmentManager: FragmentManager) {
         if (isInitialized && !searchIds.isNullOrEmpty()) {
-            val dialog = PostDialogFragment(searchIds ?: listOf()) {
+            val dialog = PostDialogFragment(
+                searchIds ?: listOf()
+            ) {
                 requestUser(it)
             }
             dialog.show(fragmentManager,"")
