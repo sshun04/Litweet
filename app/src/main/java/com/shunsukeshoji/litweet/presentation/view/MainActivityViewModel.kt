@@ -1,12 +1,14 @@
 package com.shunsukeshoji.litweet.presentation.view
 
 import android.util.Log
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
+import com.shunsukeshoji.litweet.presentation.PostDialogFragment
 import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,25 +18,31 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-class MainActivityViewModel( private val useCase: MainActivityUseCase) : ViewModel() {
+class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewModel() {
     private val compositeDisposable = CompositeDisposable()
+    private var searchIds: List<String>? = null
     private var isInitialized: Boolean = false
-    val tweets: MutableLiveData<MutableList<Tweet>> = MutableLiveData()
-    val accounts: MutableLiveData<List<Account>> = MutableLiveData()
-    lateinit var searchIds: List<String>
+
+    val tweets: LiveData<MutableList<Tweet>> get() = _tweets
+    private val _tweets: MutableLiveData<MutableList<Tweet>> = MutableLiveData()
+
+    val accounts: LiveData<List<Account>> get() = _accounts
+    private val _accounts: MutableLiveData<List<Account>> = MutableLiveData()
 
     fun onStartActivity() {
         if (isInitialized) return
         loadAccounts()
     }
 
-    fun onSubmitId(id: String, notFound: () -> Unit) {
-        if (searchIds.contains(id)) {
-            requestUser(id)
-        } else {
-            notFound()
+    fun setUpDialog(fragmentManager: FragmentManager) {
+        if (isInitialized && !searchIds.isNullOrEmpty()) {
+            val dialog = PostDialogFragment(searchIds ?: listOf()) {
+                requestUser(it)
+            }
+            dialog.show(fragmentManager,"")
         }
     }
+
     private fun loadAccounts() {
         val observable = useCase.getAccounts()
         observable
@@ -42,7 +50,7 @@ class MainActivityViewModel( private val useCase: MainActivityUseCase) : ViewMod
             .observeOn(AndroidSchedulers.mainThread())
             .doAfterSuccess {
                 if (it.isNotEmpty()) {
-                    accounts.value = it
+                    _accounts.value = it
                 }
                 isInitialized = true
             }
@@ -74,7 +82,7 @@ class MainActivityViewModel( private val useCase: MainActivityUseCase) : ViewMod
                         addAll(t)
                     }?.sortedBy { it.number }
 
-                    if (sortedList == null) tweets.postValue(t.toMutableList()) else tweets.postValue(
+                    if (sortedList == null) _tweets.postValue(t.toMutableList()) else _tweets.postValue(
                         sortedList.toMutableList()
                     )
                 }
