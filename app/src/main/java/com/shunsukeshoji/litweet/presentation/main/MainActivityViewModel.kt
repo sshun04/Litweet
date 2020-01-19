@@ -38,7 +38,7 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
             ) {
                 requestUser(it)
             }
-            dialog.show(fragmentManager,"")
+            dialog.show(fragmentManager, "")
         }
     }
 
@@ -87,7 +87,7 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
                 }
 
                 override fun onError(e: Throwable) {
-                    Log.d("Error Load Tweet", e.message)
+                    Log.d("Error Load Tweet", e.message ?: "Error request user")
                 }
             })
 
