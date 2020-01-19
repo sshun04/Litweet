@@ -2,8 +2,8 @@ package com.shunsukeshoji.litweet
 
 import android.app.Application
 import com.google.gson.GsonBuilder
-import com.shunsukeshoji.litweet.data.api.DropBoxService
-import com.shunsukeshoji.litweet.data.repository.RetrofitClientRepository
+import com.shunsukeshoji.litweet.data.DropBoxService
+import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
 import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
 import io.reactivex.schedulers.Schedulers
@@ -52,7 +52,7 @@ class MyApplication : Application() {
             androidContext(applicationContext)
             modules(
                 listOf(
-                     viewModelModule, useCaseModule,apiModule
+                    viewModelModule, useCaseModule, apiModule
                 )
             )
         }

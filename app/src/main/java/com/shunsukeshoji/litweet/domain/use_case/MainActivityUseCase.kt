@@ -1,7 +1,7 @@
 package com.shunsukeshoji.litweet.domain.use_case
 
 import android.util.Log
-import com.shunsukeshoji.litweet.data.repository.RetrofitClientRepository
+import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import io.reactivex.Single

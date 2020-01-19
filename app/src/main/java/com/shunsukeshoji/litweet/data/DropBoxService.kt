@@ -1,4 +1,4 @@
-package com.shunsukeshoji.litweet.data.api
+package com.shunsukeshoji.litweet.data
 
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
