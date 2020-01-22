@@ -64,10 +64,10 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
                 }
 
                 override fun onError(e: Throwable) {
+                    Log.d("Error Load Tweet", e.message ?: "Error load accounts")
                 }
             })
     }
-
 
     private fun requestUser(id: String) {
         val user = accounts.value?.find { it.searchIds.contains(id) }
@@ -75,6 +75,7 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
 
         single.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe { it.addTo(compositeDisposable) }
             .subscribe(object : DisposableSingleObserver<List<Tweet>>() {
                 override fun onSuccess(t: List<Tweet>) {
                     val sortedList = tweets.value?.apply {
@@ -90,7 +91,6 @@ class MainActivityViewModel(private val useCase: MainActivityUseCase) : ViewMode
                     Log.d("Error Load Tweet", e.message ?: "Error request user")
                 }
             })
-
     }
 
     override fun onCleared() {
