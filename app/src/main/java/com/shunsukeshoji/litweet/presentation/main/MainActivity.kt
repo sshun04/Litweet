@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.tweets.observe(this, Observer {
-            recyclerViewAdapter.submitList(it.toList())
+            recyclerViewAdapter.submitList(it?.toList())
         })
 
         viewModel.isLoading.observe(this, Observer { isLoading ->
