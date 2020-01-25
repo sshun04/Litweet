@@ -37,7 +37,7 @@ class MyApplication : Application() {
     }
 
     private val viewModelModule = module {
-        viewModel { MainActivityViewModel(useCase = get()) }
+        viewModel { MainActivityViewModel() }
     }
 
     private val useCaseModule = module {

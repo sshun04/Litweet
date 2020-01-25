@@ -4,13 +4,22 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.activityViewModels
 import com.shunsukeshoji.litweet.R
+import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
+import kotlinx.android.synthetic.main.fragment_dialog_post.*
 import kotlinx.android.synthetic.main.fragment_dialog_post.view.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class PostDialogFragment(
-    private val searchIds: List<String>,
-    private val submit: (String) -> Unit
-) : DialogFragment() {
+class PostDialogFragment: DialogFragment() {
+    companion object{
+        const val TAG = "tag"
+        fun show(fragmentManager: FragmentManager){
+            PostDialogFragment().show(fragmentManager, TAG)
+        }
+    }
+    private val viewModel: MainActivityViewModel by activityViewModels<MainActivityViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val parentView =
@@ -22,10 +31,8 @@ class PostDialogFragment(
 
         parentView.buttonSubmit.setOnClickListener {
             val id = parentView.editText.text.toString()
-            if (searchIds.contains(id)) {
-                submit(id)
-            } else {
-                parentView.editTextField.error = "このアカウントは存在しません"
+            viewModel.requestTweets(id){errorMessage ->
+                parentView.editTextField.error = errorMessage
             }
         }
 

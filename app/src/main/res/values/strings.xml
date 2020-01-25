@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Litweet</string>
+    <string name="error_message">初期化に失敗しました</string>
 </resources>

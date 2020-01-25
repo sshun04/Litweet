@@ -2,6 +2,8 @@ package com.shunsukeshoji.litweet.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.domain.model.Account
@@ -10,13 +12,17 @@ import com.shunsukeshoji.litweet.presentation.custom_view.TweetCellView
 
 class RecyclerViewAdapter(
     private val accounts: List<Account>
-) :
-    RecyclerView.Adapter<RecyclerViewAdapter.TweetViewHolder>() {
-    private var tweetList: List<Tweet>? = null
+) : ListAdapter<Tweet, RecyclerViewAdapter.TweetViewHolder>(diffCallback) {
 
-    fun setTweet(tweets: List<Tweet>) {
-            this.tweetList = tweets
-            notifyDataSetChanged()
+    companion object {
+        private val diffCallback: DiffUtil.ItemCallback<Tweet> =
+            object : DiffUtil.ItemCallback<Tweet>() {
+                override fun areItemsTheSame(oldItem: Tweet, newItem: Tweet) =
+                    oldItem == newItem
+
+                override fun areContentsTheSame(oldItem: Tweet, newItem: Tweet) =
+                    oldItem.number == newItem.number
+            }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TweetViewHolder {
@@ -26,15 +32,13 @@ class RecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: TweetViewHolder, position: Int) {
-        tweetList?.get(position)?.let { tweet ->
+        getItem(position)?.let { tweet ->
             val account = accounts.find {
                 it.id == tweet.id
             } ?: return
             holder.view.build(account, tweet)
         }
     }
-
-    override fun getItemCount(): Int = tweetList?.count() ?: 0
 
     class TweetViewHolder(val view: TweetCellView) : RecyclerView.ViewHolder(view)
 }

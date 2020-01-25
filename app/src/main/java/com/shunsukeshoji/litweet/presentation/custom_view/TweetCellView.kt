@@ -6,6 +6,8 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import coil.api.load
+import coil.transform.CircleCropTransformation
+import coil.transform.RoundedCornersTransformation
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import kotlinx.android.synthetic.main.item_tweet.view.*
@@ -36,7 +38,7 @@ class TweetCellView @JvmOverloads constructor(
                 image.visibility = View.GONE
                 videoView.apply {
                     setVideoURI(Uri.parse(tweet.videoUrl))
-                    setOnClickListener{
+                    setOnClickListener {
                         start()
                     }
                 }
@@ -45,7 +47,16 @@ class TweetCellView @JvmOverloads constructor(
             "image" -> {
                 image.apply {
                     visibility = View.VISIBLE
-                    load(tweet.imageUrl)
+                    load(tweet.imageUrl) {
+                        transformations(
+                            RoundedCornersTransformation(
+                                topRight = 16f,
+                                topLeft = 16f,
+                                bottomLeft = 16f,
+                                bottomRight = 16f
+                            )
+                        )
+                    }
                 }
                 videoView.visibility = View.GONE
             }
