@@ -22,7 +22,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
-            android:src="@drawable/ic_tobisuke_white_24dp" />
+            android:src="@drawable/ic_tobisuke_header" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -40,12 +40,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:background="@color/colorPrimary"
+        android:backgroundTint="@color/colorPrimary"
         android:clickable="true"
         android:src="@drawable/ic_search_white_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@color/colorPrimary" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBar"
