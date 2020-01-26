@@ -40,14 +40,14 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         loadAccounts()
     }
 
-    fun requestTweets(id: String, reject: (ErrorState) -> Unit) {
+    fun requestTweets(id: String, reject: (ErrorState) -> Unit) =
         when {
-            _accounts.value.isNullOrEmpty() -> {
-                _errorLiveData.postValue(IllegalStateException("アプリの初期化に失敗しています。リトライするか再起動してください。"))
-                reject(ErrorState.NOT_INITIALIZED)
-            }
             id == "reset" -> {
                 reset()
+            }
+            _accounts.value.isNullOrEmpty() -> {
+                _errorLiveData.postValue(IllegalStateException(ErrorState.NOT_INITIALIZED.message))
+                reject(ErrorState.NOT_INITIALIZED)
             }
             (searchIds?.contains(id) == false) -> {
                 reject(ErrorState.ACCOUNT_DOES_NOT_EXIST)
@@ -59,7 +59,6 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 loadTweets(id)
             }
         }
-    }
 
     private fun reset() {
         submittedAccounts.clear()

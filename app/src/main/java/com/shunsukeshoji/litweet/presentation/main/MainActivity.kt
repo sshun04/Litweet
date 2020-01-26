@@ -14,6 +14,7 @@ import com.shunsukeshoji.litweet.presentation.fragment.PostDialogFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.lang.IllegalStateException
+import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModel()
@@ -46,25 +47,37 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.errorLiveData.observe(this, Observer {
-            Snackbar.make(
+        viewModel.errorLiveData.observe(this, Observer { throwable ->
+            val snackBar = Snackbar.make(
                 rootLayout,
-                it?.message ?: getString(R.string.error_message),
+                "",
                 Snackbar.LENGTH_LONG
-            )
-                .apply {
-                    setBackgroundTint(
-                        ContextCompat.getColor(
-                            this@MainActivity,
-                            R.color.dark_87
-                        )
+            ).apply {
+                setBackgroundTint(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.dark_87
                     )
-                    if (it is IllegalStateException) {
-                        setAction("リトライ") {
-                            viewModel.init()
-                        }
+                )
+            }
+
+            when (throwable) {
+                is UnknownHostException -> {
+                    snackBar.setText(R.string.error_bad_connection)
+                }
+                is IllegalStateException -> {
+                    snackBar.setAction("リトライ") {
+                        viewModel.init()
                     }
-                }.show()
+                    snackBar.setText(throwable.message ?: getString(R.string.error_unKnown))
+                }
+                else -> {
+                    snackBar.setText(getString(R.string.error_unKnown))
+                }
+            }
+
+            snackBar.show()
+            throwable.stackTrace
         })
 
         searchFab.setOnClickListener {
