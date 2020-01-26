@@ -8,9 +8,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
-import kotlinx.android.synthetic.main.fragment_dialog_post.*
 import kotlinx.android.synthetic.main.fragment_dialog_post.view.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PostDialogFragment: DialogFragment() {
     companion object{

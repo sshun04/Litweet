@@ -13,7 +13,7 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-class MainActivityViewModel : ViewModel(),KoinComponent {
+class MainActivityViewModel : ViewModel(), KoinComponent {
     private val useCase: MainActivityUseCase by inject()
 
     private val compositeDisposable = CompositeDisposable()
@@ -92,7 +92,7 @@ class MainActivityViewModel : ViewModel(),KoinComponent {
                 onSuccess = {
                     val sortedList = tweets.value
                         ?.plus(it)
-                        ?.sortedBy { tweet ->  tweet.number }
+                        ?.sortedBy { tweet -> tweet.number }
                         ?: it
                     _tweets.postValue(sortedList)
                     submittedAccounts.add(user)

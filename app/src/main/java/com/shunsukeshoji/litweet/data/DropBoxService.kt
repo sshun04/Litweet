@@ -8,8 +8,8 @@ import retrofit2.http.Url
 
 interface DropBoxService {
     @GET
-    fun getAccounts(@Url url: String):Single<List<Account>>
+    fun getAccounts(@Url url: String): Single<List<Account>>
 
     @GET
-    fun getTweets(@Url url:String):Single<List<Tweet>>
+    fun getTweets(@Url url: String): Single<List<Tweet>>
 }
