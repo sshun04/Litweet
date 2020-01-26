@@ -19,6 +19,7 @@ class PostDialogFragment: DialogFragment() {
             PostDialogFragment().show(fragmentManager, TAG)
         }
     }
+
     private val viewModel: MainActivityViewModel by activityViewModels<MainActivityViewModel>()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

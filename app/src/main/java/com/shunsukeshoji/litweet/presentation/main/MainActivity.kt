@@ -63,10 +63,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onStart() {
         super.onStart()
         viewModel.onStartActivity()
     }
-
 }
