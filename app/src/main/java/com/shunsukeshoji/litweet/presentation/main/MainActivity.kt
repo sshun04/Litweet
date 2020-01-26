@@ -13,6 +13,7 @@ import com.shunsukeshoji.litweet.presentation.adapter.RecyclerViewAdapter
 import com.shunsukeshoji.litweet.presentation.fragment.PostDialogFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.lang.IllegalStateException
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModel()
@@ -46,7 +47,11 @@ class MainActivity : AppCompatActivity() {
         })
 
         viewModel.errorLiveData.observe(this, Observer {
-            Snackbar.make(rootLayout, getString(R.string.error_message), Snackbar.LENGTH_SHORT)
+            Snackbar.make(
+                rootLayout,
+                it?.message ?: getString(R.string.error_message),
+                Snackbar.LENGTH_LONG
+            )
                 .apply {
                     setBackgroundTint(
                         ContextCompat.getColor(
@@ -54,6 +59,11 @@ class MainActivity : AppCompatActivity() {
                             R.color.dark_87
                         )
                     )
+                    if (it is IllegalStateException) {
+                        setAction("リトライ") {
+                            viewModel.init()
+                        }
+                    }
                 }.show()
         })
 
@@ -64,6 +74,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.onStartActivity()
+        viewModel.init()
     }
 }

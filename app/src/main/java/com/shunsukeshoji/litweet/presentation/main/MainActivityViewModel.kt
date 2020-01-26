@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.shunsukeshoji.litweet.domain.model.Account
+import com.shunsukeshoji.litweet.util.ErrorState
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
 import io.reactivex.disposables.CompositeDisposable
@@ -12,6 +13,7 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
+import java.lang.IllegalStateException
 
 class MainActivityViewModel : ViewModel(), KoinComponent {
     private val useCase: MainActivityUseCase by inject()
@@ -33,28 +35,34 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    fun onStartActivity() {
+    fun init() {
         if (!accounts.value.isNullOrEmpty()) return
         loadAccounts()
     }
 
-    fun requestTweets(id: String, reject: (String) -> Unit) =
+    fun requestTweets(id: String, reject: (ErrorState) -> Unit) {
         when {
+            _accounts.value.isNullOrEmpty() -> {
+                _errorLiveData.postValue(IllegalStateException("アプリの初期化に失敗しています。リトライするか再起動してください。"))
+                reject(ErrorState.NOT_INITIALIZED)
+            }
             id == "reset" -> {
                 reset()
             }
             (searchIds?.contains(id) == false) -> {
-                reject("このアカウントは存在しません")
+                reject(ErrorState.ACCOUNT_DOES_NOT_EXIST)
             }
             (submittedAccounts.find { it.searchIds.contains(id) } != null) -> {
-                reject("このアカウントは追加ずみです")
+                reject(ErrorState.ACCOUNT_ALREADY_SUBMITTED)
             }
             else -> {
                 loadTweets(id)
             }
         }
+    }
 
     private fun reset() {
+        submittedAccounts.clear()
         _tweets.postValue(null)
     }
 
