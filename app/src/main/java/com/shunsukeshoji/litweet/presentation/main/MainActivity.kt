@@ -11,10 +11,9 @@ import com.google.android.material.snackbar.Snackbar
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.presentation.adapter.RecyclerViewAdapter
 import com.shunsukeshoji.litweet.presentation.fragment.PostDialogFragment
+import com.shunsukeshoji.litweet.util.ProcessErrorState
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.lang.IllegalStateException
-import java.net.UnknownHostException
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainActivityViewModel by viewModel()
@@ -47,10 +46,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.errorLiveData.observe(this, Observer { throwable ->
-            val snackBar = Snackbar.make(
+        viewModel.errorLiveData.observe(this, Observer { error ->
+            val errorContent: ProcessErrorState = error.errorIfNotHandled ?: return@Observer
+          Snackbar.make(
                 rootLayout,
-                "",
+                errorContent.message,
                 Snackbar.LENGTH_LONG
             ).apply {
                 setBackgroundTint(
@@ -59,25 +59,13 @@ class MainActivity : AppCompatActivity() {
                         R.color.dark_87
                     )
                 )
-            }
-
-            when (throwable) {
-                is UnknownHostException -> {
-                    snackBar.setText(R.string.error_bad_connection)
-                }
-                is IllegalStateException -> {
-                    snackBar.setAction("リトライ") {
+                if (errorContent == ProcessErrorState.NOT_INITIALIZED){
+                    setAction("リトライ"){
                         viewModel.init()
                     }
-                    snackBar.setText(throwable.message ?: getString(R.string.error_unKnown))
                 }
-                else -> {
-                    snackBar.setText(getString(R.string.error_unKnown))
-                }
-            }
+            }.show()
 
-            snackBar.show()
-            throwable.stackTrace
         })
 
         searchFab.setOnClickListener {

@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.shunsukeshoji.litweet.domain.model.Account
-import com.shunsukeshoji.litweet.util.ErrorState
+import com.shunsukeshoji.litweet.util.AccountValidationState
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
+import com.shunsukeshoji.litweet.util.ProcessErrorState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.subscribeBy
@@ -14,6 +15,7 @@ import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.lang.IllegalStateException
+import java.net.UnknownHostException
 
 class MainActivityViewModel : ViewModel(), KoinComponent {
     private val useCase: MainActivityUseCase by inject()
@@ -29,8 +31,8 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _accounts: MutableLiveData<List<Account>> = MutableLiveData()
     val accounts: LiveData<List<Account>> = _accounts
 
-    private val _errorLiveData: MutableLiveData<Throwable> = MutableLiveData()
-    val errorLiveData: LiveData<Throwable> = _errorLiveData
+    private val _errorLiveData: MutableLiveData<ProcessError> = MutableLiveData()
+    val errorLiveData: LiveData<ProcessError> = _errorLiveData
 
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -40,20 +42,38 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         loadAccounts()
     }
 
-    fun requestTweets(id: String, reject: (ErrorState) -> Unit) =
+    class ProcessError(private val throwable: Throwable) {
+        private var handledError = false
+
+        val errorIfNotHandled: ProcessErrorState?
+            get() {
+                if (handledError) {
+                    return null
+                }
+                handledError = true
+                throwable.stackTrace
+                return when (throwable) {
+                    is UnknownHostException -> ProcessErrorState.BAD_CONNECTION
+                    is IllegalStateException -> ProcessErrorState.NOT_INITIALIZED
+                    else -> ProcessErrorState.UNKNOWN
+                }
+            }
+    }
+
+    fun requestTweets(id: String, reject: (AccountValidationState) -> Unit) =
         when {
             id == "reset" -> {
                 reset()
             }
             _accounts.value.isNullOrEmpty() -> {
-                _errorLiveData.postValue(IllegalStateException(ErrorState.NOT_INITIALIZED.message))
-                reject(ErrorState.NOT_INITIALIZED)
+                _errorLiveData.postValue(ProcessError(IllegalStateException()))
+                reject(AccountValidationState.NOT_INITIALIZED)
             }
             (searchIds?.contains(id) == false) -> {
-                reject(ErrorState.ACCOUNT_DOES_NOT_EXIST)
+                reject(AccountValidationState.ACCOUNT_DOES_NOT_EXIST)
             }
             (submittedAccounts.find { it.searchIds.contains(id) } != null) -> {
-                reject(ErrorState.ACCOUNT_ALREADY_SUBMITTED)
+                reject(AccountValidationState.ACCOUNT_ALREADY_SUBMITTED)
             }
             else -> {
                 loadTweets(id)
@@ -82,7 +102,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                     }
                 },
                 onError = {
-                    _errorLiveData.postValue(it)
+                    _errorLiveData.postValue(ProcessError(it))
                 }
             )
             .addTo(compositeDisposable)
@@ -105,7 +125,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                     submittedAccounts.add(user)
                 },
                 onError = {
-                    _errorLiveData.postValue(it)
+                    _errorLiveData.postValue(ProcessError(it))
                 }
             )
             .addTo(compositeDisposable)

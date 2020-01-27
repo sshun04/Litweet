@@ -8,7 +8,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
-import com.shunsukeshoji.litweet.util.ErrorState
+import com.shunsukeshoji.litweet.util.AccountValidationState
 import kotlinx.android.synthetic.main.fragment_dialog_post.view.*
 
 class PostDialogFragment : DialogFragment() {
@@ -34,13 +34,13 @@ class PostDialogFragment : DialogFragment() {
             val id = parentView.editText.text.toString()
             viewModel.requestTweets(id) { error ->
                 when (error) {
-                    ErrorState.NOT_INITIALIZED -> {
+                    AccountValidationState.NOT_INITIALIZED -> {
                         dialog.dismiss()
                     }
-                    ErrorState.ACCOUNT_DOES_NOT_EXIST -> {
+                    AccountValidationState.ACCOUNT_DOES_NOT_EXIST -> {
                         parentView.editTextField.error = error.message
                     }
-                    ErrorState.ACCOUNT_ALREADY_SUBMITTED -> {
+                    AccountValidationState.ACCOUNT_ALREADY_SUBMITTED -> {
                         parentView.editTextField.error = error.message
                     }
                 }
