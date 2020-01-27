@@ -37,27 +37,13 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
+    init {
+        init()
+    }
+
     fun init() {
         if (!accounts.value.isNullOrEmpty()) return
         loadAccounts()
-    }
-
-    class ProcessError(private val throwable: Throwable) {
-        private var handledError = false
-
-        val errorIfNotHandled: ProcessErrorState?
-            get() {
-                if (handledError) {
-                    return null
-                }
-                handledError = true
-                throwable.stackTrace
-                return when (throwable) {
-                    is UnknownHostException -> ProcessErrorState.BAD_CONNECTION
-                    is IllegalStateException -> ProcessErrorState.NOT_INITIALIZED
-                    else -> ProcessErrorState.UNKNOWN
-                }
-            }
     }
 
     fun requestTweets(id: String, reject: (AccountValidationState) -> Unit) =
@@ -136,4 +122,21 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         super.onCleared()
     }
 
+    class ProcessError(private val throwable: Throwable) {
+        private var handledError = false
+
+        val errorIfNotHandled: ProcessErrorState?
+            get() {
+                if (handledError) {
+                    return null
+                }
+                handledError = true
+                throwable.stackTrace
+                return when (throwable) {
+                    is UnknownHostException -> ProcessErrorState.BAD_CONNECTION
+                    is IllegalStateException -> ProcessErrorState.NOT_INITIALIZED
+                    else -> ProcessErrorState.UNKNOWN
+                }
+            }
+    }
 }

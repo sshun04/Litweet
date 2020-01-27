@@ -48,7 +48,8 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.errorLiveData.observe(this, Observer { error ->
             val errorContent: ProcessErrorState = error.errorIfNotHandled ?: return@Observer
-          Snackbar.make(
+
+            Snackbar.make(
                 rootLayout,
                 errorContent.message,
                 Snackbar.LENGTH_LONG
@@ -59,8 +60,8 @@ class MainActivity : AppCompatActivity() {
                         R.color.dark_87
                     )
                 )
-                if (errorContent == ProcessErrorState.NOT_INITIALIZED){
-                    setAction("リトライ"){
+                if (errorContent == ProcessErrorState.NOT_INITIALIZED) {
+                    setAction("リトライ") {
                         viewModel.init()
                     }
                 }
@@ -71,10 +72,5 @@ class MainActivity : AppCompatActivity() {
         searchFab.setOnClickListener {
             PostDialogFragment.show(supportFragmentManager)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.init()
     }
 }
