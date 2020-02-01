@@ -11,6 +11,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.presentation.adapter.RecyclerViewAdapter
 import com.shunsukeshoji.litweet.presentation.fragment.PostDialogFragment
+import com.shunsukeshoji.litweet.util.ProcessErrorState
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -45,25 +46,31 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.errorLiveData.observe(this, Observer {
-            Snackbar.make(rootLayout, getString(R.string.error_message), Snackbar.LENGTH_SHORT)
-                .apply {
-                    setBackgroundTint(
-                        ContextCompat.getColor(
-                            this@MainActivity,
-                            R.color.dark_87
-                        )
+        viewModel.errorLiveData.observe(this, Observer { error ->
+            val errorContent: ProcessErrorState = error.errorIfNotHandled ?: return@Observer
+
+            Snackbar.make(
+                rootLayout,
+                errorContent.message,
+                Snackbar.LENGTH_LONG
+            ).apply {
+                setBackgroundTint(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.dark_87
                     )
-                }.show()
+                )
+                if (errorContent == ProcessErrorState.NOT_INITIALIZED) {
+                    setAction("リトライ") {
+                        viewModel.init()
+                    }
+                }
+            }.show()
+
         })
 
         searchFab.setOnClickListener {
             PostDialogFragment.show(supportFragmentManager)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.onStartActivity()
     }
 }

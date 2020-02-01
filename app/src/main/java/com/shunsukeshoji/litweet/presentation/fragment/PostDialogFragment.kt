@@ -8,12 +8,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import com.shunsukeshoji.litweet.R
 import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
+import com.shunsukeshoji.litweet.util.AccountValidationState
 import kotlinx.android.synthetic.main.fragment_dialog_post.view.*
 
-class PostDialogFragment: DialogFragment() {
-    companion object{
+class PostDialogFragment : DialogFragment() {
+    companion object {
         const val TAG = "tag"
-        fun show(fragmentManager: FragmentManager){
+        fun show(fragmentManager: FragmentManager) {
             PostDialogFragment().show(fragmentManager, TAG)
         }
     }
@@ -29,15 +30,27 @@ class PostDialogFragment: DialogFragment() {
             .create()
 
         parentView.buttonSubmit.setOnClickListener {
+            parentView.editTextField.error = null
             val id = parentView.editText.text.toString()
-            viewModel.requestTweets(id){errorMessage ->
-                parentView.editTextField.error = errorMessage
+            viewModel.requestTweets(id) { error ->
+                when (error) {
+                    AccountValidationState.NOT_INITIALIZED -> {
+                        dialog.dismiss()
+                    }
+                    AccountValidationState.ACCOUNT_DOES_NOT_EXIST -> {
+                        parentView.editTextField.error = error.message
+                    }
+                    AccountValidationState.ACCOUNT_ALREADY_SUBMITTED -> {
+                        parentView.editTextField.error = error.message
+                    }
+                }
             }
         }
 
         parentView.buttonCancel.setOnClickListener {
             dialog.dismiss()
         }
+
 
         return dialog
     }

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Litweet</string>
-    <string name="error_message">初期化に失敗しました</string>
+    <string name="error_bad_connection">通信エラーが発生しました。\n通信状況を確認してリトライしてください。</string>
+    <string name="error_unKnown">エラーが発生しました。アプリを再起動してください</string>
 </resources>
