@@ -1,9 +1,7 @@
 package com.shunsukeshoji.litweet.data.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.shunsukeshoji.litweet.domain.model.Account
-import io.reactivex.Flowable
 import io.reactivex.Observable
 
 @Dao
