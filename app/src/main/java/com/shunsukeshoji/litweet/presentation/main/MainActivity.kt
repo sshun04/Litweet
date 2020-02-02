@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
                 adapter = recyclerViewAdapter
                 layoutManager = linearLayoutManager
             }
+
+            viewModel.loadFromCache()
         })
 
         viewModel.tweets.observe(this, Observer {

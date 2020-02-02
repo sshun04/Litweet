@@ -1,5 +1,6 @@
 package com.shunsukeshoji.litweet.presentation.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,11 +9,9 @@ import com.shunsukeshoji.litweet.util.AccountValidationState
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
 import com.shunsukeshoji.litweet.util.ProcessErrorState
-import io.reactivex.Single
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.rxkotlin.toObservable
+import io.reactivex.rxkotlin.*
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -41,7 +40,11 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
 
     fun initialize() {
         if (!accounts.value.isNullOrEmpty()) return
-        loadBaseAccounts()
+        loadMasterAccounts()
+    }
+
+    fun loadFromCache() {
+        initTweetsByCache()
     }
 
     fun requestTweets(id: String, reject: (AccountValidationState) -> Unit) =
@@ -76,14 +79,13 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
 
     }
 
-    private fun loadBaseAccounts() {
+    private fun loadMasterAccounts() {
         val observable = useCase.loadAccounts()
         observable
             .subscribeOn(Schedulers.io())
             .doOnSubscribe { _isLoading.postValue(true) }
             .doFinally { _isLoading.postValue(false) }
             .observeOn(Schedulers.io())
-            .doAfterSuccess { initTweetsByCache() }
             .subscribeBy(
                 onSuccess = {
                     if (it.isNotEmpty()) {
@@ -101,18 +103,23 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             .addTo(compositeDisposable)
     }
 
-    private fun initTweetsByCache(){
-        Single.fromCallable { useCase.getSubmittedAccount() }
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .retry(3)
-            .flatMapObservable { it.toObservable() }
-            .subscribeBy(
+    private fun initTweetsByCache() {
+        useCase.getCachedAccount()
+            .flatMap {
+                Observable.fromIterable(it)
+                    .flatMap { account ->
+                        useCase.requestTweet(account.tweetUrl).toObservable()
+                    }.reduce { t1: List<Tweet>, t2: List<Tweet> ->
+                        t1.plus(t2).sortedBy { tweet -> tweet.number }
+                    }.toObservable()
+            }.subscribeBy(
                 onNext = {
-                    submittedAccounts.add(it)
-                    loadTweets(it)
+                    _tweets.postValue(it)
+                },
+                onError = {
+                    Log.d("LoadTweet", it.message ?: "")
                 }
-            )
+            ).addTo(compositeDisposable)
     }
 
     private fun loadTweets(account: Account, success: (() -> Unit) = {}) {

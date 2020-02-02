@@ -5,6 +5,7 @@ import com.shunsukeshoji.litweet.data.impl.LocalCacheRepository
 import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
 import com.shunsukeshoji.litweet.domain.model.Account
 import com.shunsukeshoji.litweet.domain.model.Tweet
+import io.reactivex.Observable
 import io.reactivex.Single
 
 class MainActivityUseCase(private val retrofitClientRepository: RetrofitClientRepository,private val localCacheRepository: LocalCacheRepository) {
@@ -21,7 +22,7 @@ class MainActivityUseCase(private val retrofitClientRepository: RetrofitClientRe
         return retrofitClientRepository.getTweets(url)
     }
 
-    fun getSubmittedAccount():List<Account> = localCacheRepository.getAccounts()
+    fun getCachedAccount():Observable<List<Account>> = localCacheRepository.getAccounts()
 
     fun addSubmittedAccount(account: Account) = localCacheRepository.insertAccount(account)
 

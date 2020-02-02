@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.shunsukeshoji.litweet.domain.model.Account
 import io.reactivex.Flowable
+import io.reactivex.Observable
 
 @Dao
 interface RoomDao {
@@ -11,7 +12,7 @@ interface RoomDao {
     fun insertAccount(account: Account)
 
     @Query("SELECT * FROM accounts")
-    fun getAllAccounts(): List<Account>
+    fun getAllAccounts(): Observable<List<Account>>
 
     @Delete
     fun deleteAllAccounts(accounts: List<Account>)
