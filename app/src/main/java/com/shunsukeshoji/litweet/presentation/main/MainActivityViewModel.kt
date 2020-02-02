@@ -96,6 +96,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 onError = {
                     _errorLiveData.postValue(ProcessError(it))
                 }
+
             )
             .addTo(compositeDisposable)
     }

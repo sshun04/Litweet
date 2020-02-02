@@ -41,11 +41,7 @@ class MyApplication : Application() {
 
     private val localDbModule = module {
         single<LocalDatabase> {
-            return@single Room.databaseBuilder(
-                applicationContext,
-                LocalDatabase::class.java,
-                "Local_cache"
-            ).build()
+            return@single LocalDatabase.getInstance(this@MyApplication)
         }
         factory { get<LocalDatabase>().roomDao() }
 
