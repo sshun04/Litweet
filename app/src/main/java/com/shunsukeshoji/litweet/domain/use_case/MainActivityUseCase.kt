@@ -40,5 +40,8 @@ class MainActivityUseCase(
 
     fun addSubmittedAccount(account: Account) = localCacheRepository.insertAccount(account)
 
-    fun resetLocalCache(accounts: List<Account>) = localCacheRepository.deleteAllAccounts(accounts)
+    fun resetLocalCache(accounts: List<Account>): Single<Int> =
+        localCacheRepository
+            .deleteAllAccounts(accounts)
+            .subscribeOn(Schedulers.io())
 }
