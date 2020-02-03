@@ -1,7 +1,6 @@
 package com.shunsukeshoji.litweet
 
 import android.app.Application
-import androidx.room.Room
 import com.google.gson.GsonBuilder
 import com.shunsukeshoji.litweet.data.DropBoxService
 import com.shunsukeshoji.litweet.data.impl.LocalCacheRepository

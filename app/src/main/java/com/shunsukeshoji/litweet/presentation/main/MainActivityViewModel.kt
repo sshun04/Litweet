@@ -89,7 +89,6 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         _tweets.postValue(null)
         submittedAccounts.clear()
         useCase.resetLocalCache(submittedAccounts)
-
     }
 
     private fun loadCachedAccounts(): Observable<List<Account>> = useCase.getCachedAccount()
