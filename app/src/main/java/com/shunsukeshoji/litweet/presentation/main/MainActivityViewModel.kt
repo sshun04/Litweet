@@ -1,6 +1,5 @@
 package com.shunsukeshoji.litweet.presentation.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +11,6 @@ import com.shunsukeshoji.litweet.util.ProcessErrorState
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.*
-import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.lang.IllegalStateException
@@ -51,10 +49,10 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 }
                 .subscribeBy(
                     onNext = {
-                        _tweets.postValue(it)
+                        if (it.isNotEmpty()) _tweets.postValue(it)
                     },
                     onError = {
-                        _errorLiveData.postValue(ProcessError(it))
+                        print(it.message)
                     }
                 )
         )
@@ -87,11 +85,21 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
 
     private fun reset() {
         _tweets.postValue(null)
-        submittedAccounts.clear()
-        useCase.resetLocalCache(submittedAccounts)
+        resetLocalCache()
     }
 
-    private fun loadCachedAccounts(): Observable<List<Account>> = useCase.getCachedAccount()
+    private fun resetLocalCache(){
+        useCase.resetLocalCache(submittedAccounts)
+            .subscribeBy (
+                onSuccess = {
+                    submittedAccounts.clear()
+                },
+                onError = {
+                    _errorLiveData.postValue(ProcessError(it))
+                }
+            )
+            .addTo(compositeDisposable)
+    }
 
     private fun loadMasterAccounts() {
         val observable = useCase.loadAccounts()
@@ -113,6 +121,8 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             )
             .addTo(compositeDisposable)
     }
+
+    private fun loadCachedAccounts(): Observable<List<Account>> = useCase.getCachedAccount()
 
     private fun loadTweets(account: Account, success: (() -> Unit) = {}) {
         useCase.requestTweet(account.tweetUrl)
@@ -137,7 +147,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private fun loadTweetsByCache(accounts: List<Account>): List<Tweet> =
         Observable
             .fromIterable(accounts)
-            .doOnError { _errorLiveData.postValue(ProcessError(it)) }
+            .doOnError { print("no cached data") }
             .flatMap {
                 submittedAccounts.add(it)
                 useCase.requestTweet(it.tweetUrl).toObservable()

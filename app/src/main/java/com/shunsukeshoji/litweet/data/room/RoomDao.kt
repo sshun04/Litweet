@@ -3,6 +3,7 @@ package com.shunsukeshoji.litweet.data.room
 import androidx.room.*
 import com.shunsukeshoji.litweet.domain.model.Account
 import io.reactivex.Observable
+import io.reactivex.Single
 
 @Dao
 interface RoomDao {
@@ -13,5 +14,5 @@ interface RoomDao {
     fun getAllAccounts(): Observable<List<Account>>
 
     @Delete
-    fun deleteAllAccounts(accounts: List<Account>)
+    fun deleteAllAccounts(accounts: List<Account>):Single<Int>
 }
