@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
                 adapter = recyclerViewAdapter
                 layoutManager = linearLayoutManager
             }
+
+            viewModel.loadFromCache()
         })
 
         viewModel.tweets.observe(this, Observer {
@@ -62,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 if (errorContent == ProcessErrorState.NOT_INITIALIZED) {
                     setAction("リトライ") {
-                        viewModel.init()
+                        viewModel.initialize()
                     }
                 }
             }.show()
@@ -72,5 +74,10 @@ class MainActivity : AppCompatActivity() {
         searchFab.setOnClickListener {
             PostDialogFragment.show(supportFragmentManager)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.initialize()
     }
 }

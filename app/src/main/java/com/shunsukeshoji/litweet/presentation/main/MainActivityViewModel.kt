@@ -1,5 +1,6 @@
 package com.shunsukeshoji.litweet.presentation.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,9 +9,9 @@ import com.shunsukeshoji.litweet.util.AccountValidationState
 import com.shunsukeshoji.litweet.domain.model.Tweet
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
 import com.shunsukeshoji.litweet.util.ProcessErrorState
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.rxkotlin.*
 import io.reactivex.schedulers.Schedulers
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -37,13 +38,26 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    init {
-        init()
+    fun initialize() {
+        if (!accounts.value.isNullOrEmpty()) return
+        loadMasterAccounts()
     }
 
-    fun init() {
-        if (!accounts.value.isNullOrEmpty()) return
-        loadAccounts()
+    fun loadFromCache() {
+        compositeDisposable.add(
+            loadCachedAccounts()
+                .map {
+                    loadTweetsByCache(it)
+                }
+                .subscribeBy(
+                    onNext = {
+                        _tweets.postValue(it)
+                    },
+                    onError = {
+                        _errorLiveData.postValue(ProcessError(it))
+                    }
+                )
+        )
     }
 
     fun requestTweets(id: String, reject: (AccountValidationState) -> Unit) =
@@ -62,22 +76,28 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 reject(AccountValidationState.ACCOUNT_ALREADY_SUBMITTED)
             }
             else -> {
-                loadTweets(id)
+                accounts.value?.find { it.searchIds.contains(id) }?.let {
+                    loadTweets(account = it) {
+                        submittedAccounts.add(it)
+                        useCase.addSubmittedAccount(it)
+                    }
+                }
             }
         }
 
     private fun reset() {
-        submittedAccounts.clear()
         _tweets.postValue(null)
+        submittedAccounts.clear()
+        useCase.resetLocalCache(submittedAccounts)
     }
 
-    private fun loadAccounts() {
-        val observable = useCase.getAccounts()
+    private fun loadCachedAccounts(): Observable<List<Account>> = useCase.getCachedAccount()
+
+    private fun loadMasterAccounts() {
+        val observable = useCase.loadAccounts()
         observable
-            .subscribeOn(Schedulers.io())
             .doOnSubscribe { _isLoading.postValue(true) }
             .doFinally { _isLoading.postValue(false) }
-            .observeOn(Schedulers.io())
             .subscribeBy(
                 onSuccess = {
                     if (it.isNotEmpty()) {
@@ -94,11 +114,8 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             .addTo(compositeDisposable)
     }
 
-    private fun loadTweets(id: String) {
-        val user = accounts.value?.find { it.searchIds.contains(id) }
-        useCase.requestTweet(user?.tweetUrl ?: return)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+    private fun loadTweets(account: Account, success: (() -> Unit) = {}) {
+        useCase.requestTweet(account.tweetUrl)
             .doOnSubscribe { _isLoading.postValue(true) }
             .doFinally { _isLoading.postValue(false) }
             .subscribeBy(
@@ -108,7 +125,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                         ?.sortedBy { tweet -> tweet.number }
                         ?: it
                     _tweets.postValue(sortedList)
-                    submittedAccounts.add(user)
+                    success()
                 },
                 onError = {
                     _errorLiveData.postValue(ProcessError(it))
@@ -116,6 +133,17 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             )
             .addTo(compositeDisposable)
     }
+
+    private fun loadTweetsByCache(accounts: List<Account>): List<Tweet> =
+        Observable
+            .fromIterable(accounts)
+            .doOnError { _errorLiveData.postValue(ProcessError(it)) }
+            .flatMap {
+                submittedAccounts.add(it)
+                useCase.requestTweet(it.tweetUrl).toObservable()
+            }.reduce { t1: List<Tweet>, t2: List<Tweet> ->
+                t1.plus(t2).sortedBy { tweet -> tweet.number }
+            }.blockingGet()
 
     override fun onCleared() {
         compositeDisposable.clear()

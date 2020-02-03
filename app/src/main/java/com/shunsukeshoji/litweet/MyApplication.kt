@@ -3,7 +3,9 @@ package com.shunsukeshoji.litweet
 import android.app.Application
 import com.google.gson.GsonBuilder
 import com.shunsukeshoji.litweet.data.DropBoxService
+import com.shunsukeshoji.litweet.data.impl.LocalCacheRepository
 import com.shunsukeshoji.litweet.data.impl.RetrofitClientRepository
+import com.shunsukeshoji.litweet.data.room.LocalDatabase
 import com.shunsukeshoji.litweet.domain.use_case.MainActivityUseCase
 import com.shunsukeshoji.litweet.presentation.main.MainActivityViewModel
 import io.reactivex.schedulers.Schedulers
@@ -36,13 +38,27 @@ class MyApplication : Application() {
         }
     }
 
+    private val localDbModule = module {
+        single<LocalDatabase> {
+            return@single LocalDatabase.getInstance(this@MyApplication)
+        }
+        factory { get<LocalDatabase>().roomDao() }
+
+    }
+
     private val viewModelModule = module {
         viewModel { MainActivityViewModel() }
     }
 
     private val useCaseModule = module {
         single<RetrofitClientRepository> { RetrofitClientRepository(get()) }
-        factory { MainActivityUseCase(retrofitClientRepository = get()) }
+        single { LocalCacheRepository(get()) }
+        factory {
+            MainActivityUseCase(
+                retrofitClientRepository = get(),
+                localCacheRepository = get()
+            )
+        }
     }
 
     override fun onCreate() {
@@ -52,7 +68,7 @@ class MyApplication : Application() {
             androidContext(applicationContext)
             modules(
                 listOf(
-                    viewModelModule, useCaseModule, apiModule
+                    viewModelModule, useCaseModule, apiModule, localDbModule
                 )
             )
         }
