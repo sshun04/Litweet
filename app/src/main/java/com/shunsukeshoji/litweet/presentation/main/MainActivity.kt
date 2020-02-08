@@ -1,5 +1,6 @@
 package com.shunsukeshoji.litweet.presentation.main
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -69,6 +70,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }.show()
 
+        })
+
+        viewModel.showSuccessSnackBar.observe(this, Observer {
+            val message = it.message ?: return@Observer
+
+            Snackbar.make(
+                rootLayout,
+                message,
+                Snackbar.LENGTH_LONG
+            ).apply {
+                setBackgroundTint(
+                    ContextCompat.getColor(
+                        this@MainActivity,
+                        R.color.colorPrimary
+                    )
+                )
+                setTextColor(Color.WHITE)
+            }.show()
         })
 
         searchFab.setOnClickListener {

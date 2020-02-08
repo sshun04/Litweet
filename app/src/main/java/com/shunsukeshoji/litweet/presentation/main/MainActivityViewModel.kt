@@ -36,6 +36,9 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
+    private val _showSuccessSnackBar: MutableLiveData<TweetLoadSuccess> = MutableLiveData()
+    val showSuccessSnackBar: LiveData<TweetLoadSuccess> = _showSuccessSnackBar
+
     fun initialize() {
         if (!accounts.value.isNullOrEmpty()) return
         loadMasterAccounts()
@@ -76,6 +79,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             else -> {
                 accounts.value?.find { it.searchIds.contains(id) }?.let {
                     loadTweets(account = it) {
+                        _showSuccessSnackBar.postValue(TweetLoadSuccess())
                         submittedAccounts.add(it)
                         useCase.addSubmittedAccount(it)
                     }
@@ -88,9 +92,9 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         resetLocalCache()
     }
 
-    private fun resetLocalCache(){
+    private fun resetLocalCache() {
         useCase.resetLocalCache(submittedAccounts)
-            .subscribeBy (
+            .subscribeBy(
                 onSuccess = {
                     submittedAccounts.clear()
                 },
@@ -158,6 +162,18 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     override fun onCleared() {
         compositeDisposable.clear()
         super.onCleared()
+    }
+
+    class TweetLoadSuccess {
+        private var isHandled = false
+
+        val message: String?
+            get() {
+                when (isHandled) {
+                    true -> return null
+                    else -> return "アカウントを追加しました"
+                }
+            }
     }
 
     class ProcessError(private val throwable: Throwable) {
