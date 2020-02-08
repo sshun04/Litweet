@@ -36,8 +36,8 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val _showSuccessSnackBar: MutableLiveData<TweetLoadSucess> = MutableLiveData()
-    val showSuccessSnackBar: LiveData<TweetLoadSucess> = _showSuccessSnackBar
+    private val _showSuccessSnackBar: MutableLiveData<TweetLoadSuccess> = MutableLiveData()
+    val showSuccessSnackBar: LiveData<TweetLoadSuccess> = _showSuccessSnackBar
 
     fun initialize() {
         if (!accounts.value.isNullOrEmpty()) return
@@ -79,7 +79,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             else -> {
                 accounts.value?.find { it.searchIds.contains(id) }?.let {
                     loadTweets(account = it) {
-                        _showSuccessSnackBar.postValue(TweetLoadSucess())
+                        _showSuccessSnackBar.postValue(TweetLoadSuccess())
                         submittedAccounts.add(it)
                         useCase.addSubmittedAccount(it)
                     }
@@ -164,7 +164,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
         super.onCleared()
     }
 
-    class TweetLoadSucess() {
+    class TweetLoadSuccess {
         private var isHandled = false
 
         val message: String?
