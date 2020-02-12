@@ -32,11 +32,12 @@ class MainActivityUseCase(
             .observeOn(Schedulers.io())
     }
 
-    fun getCachedAccount(): Observable<List<Account>> =
-        localCacheRepository
-            .getAccounts()
+    fun getCachedAccount(): Observable<Account> =
+        localCacheRepository.getAccounts()
             .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
+            .flatMap { accounts ->
+                Observable.create<Account> { emitter -> accounts.forEach { emitter.onNext(it) } }
+            }
 
     fun addSubmittedAccount(account: Account) = localCacheRepository.insertAccount(account)
 

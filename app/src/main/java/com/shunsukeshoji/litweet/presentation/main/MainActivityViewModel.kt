@@ -45,20 +45,17 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
     }
 
     fun loadFromCache() {
-        compositeDisposable.add(
-            loadCachedAccounts()
-                .map {
-                    loadTweetsByCache(it)
+        useCase.getCachedAccount()
+            .subscribeBy(
+            onNext = {
+                loadTweets(it) {
+                    submittedAccounts.add(it)
                 }
-                .subscribeBy(
-                    onNext = {
-                        if (it.isNotEmpty()) _tweets.postValue(it)
-                    },
-                    onError = {
-                        print(it.message)
-                    }
-                )
-        )
+            },
+            onError = {
+
+            })
+            .addTo(compositeDisposable)
     }
 
     fun requestTweets(id: String, reject: (AccountValidationState) -> Unit) =
@@ -78,9 +75,9 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             }
             else -> {
                 accounts.value?.find { it.searchIds.contains(id) }?.let {
+                    submittedAccounts.add(it)
                     loadTweets(account = it) {
                         _showSuccessSnackBar.postValue(TweetLoadSuccess())
-                        submittedAccounts.add(it)
                         useCase.addSubmittedAccount(it)
                     }
                 }
@@ -126,8 +123,6 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
             .addTo(compositeDisposable)
     }
 
-    private fun loadCachedAccounts(): Observable<List<Account>> = useCase.getCachedAccount()
-
     private fun loadTweets(account: Account, success: (() -> Unit) = {}) {
         useCase.requestTweet(account.tweetUrl)
             .doOnSubscribe { _isLoading.postValue(true) }
@@ -136,6 +131,7 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 onSuccess = {
                     val sortedList = tweets.value
                         ?.plus(it)
+                        ?.distinct()
                         ?.sortedBy { tweet -> tweet.number }
                         ?: it
                     _tweets.postValue(sortedList)
@@ -143,21 +139,12 @@ class MainActivityViewModel : ViewModel(), KoinComponent {
                 },
                 onError = {
                     _errorLiveData.postValue(ProcessError(it))
+                    submittedAccounts.remove(account)
                 }
             )
             .addTo(compositeDisposable)
     }
 
-    private fun loadTweetsByCache(accounts: List<Account>): List<Tweet> =
-        Observable
-            .fromIterable(accounts)
-            .doOnError { print("no cached data") }
-            .flatMap {
-                submittedAccounts.add(it)
-                useCase.requestTweet(it.tweetUrl).toObservable()
-            }.reduce { t1: List<Tweet>, t2: List<Tweet> ->
-                t1.plus(t2).sortedBy { tweet -> tweet.number }
-            }.blockingGet()
 
     override fun onCleared() {
         compositeDisposable.clear()
